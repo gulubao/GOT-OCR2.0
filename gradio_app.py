@@ -98,9 +98,9 @@ with gr.Blocks(title="GOT-OCR 2.0", theme=gr.themes.Soft()) as demo:
         with gr.Column(scale=1):
             # 输入部分
             input_image = gr.Image(
-                label="上传图片",
+                tools=["select"],
                 type="pil",
-                tool="editor"  # 允许简单的图片编辑
+                label="上传图片"
             )
             
             with gr.Row():

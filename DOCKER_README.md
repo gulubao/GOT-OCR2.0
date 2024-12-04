@@ -47,6 +47,44 @@ TODO: dockerfile and dockercompose
 6. 复制识别结果
 7. 查看示例
 
+## Demo
+
+```Shell
+cd /app/GOT-OCR-2.0-master
+```
+
+1. plain texts OCR:
+```Shell
+python3 GOT/demo/run_ocr_2.0.py  --model-name  /GOT_weights/  --image-file  /an/image/file.png  --type ocr
+```
+2. format texts OCR:
+```Shell
+python3 GOT/demo/run_ocr_2.0.py  --model-name  /app/GOT_weights/  --image-file  /an/image/file.png  --type format
+python3 GOT/demo/run_ocr_2.0.py  --model-name  /app/GOT_weights/  --image-file  /data/Snipaste_2024-12-04_10-57-08.png  --type format
+
+```
+3. fine-grained OCR:
+```Shell
+python3 GOT-OCR-2.0-master/GOT/demo/run_ocr_2.0.py  --model-name  /GOT_weights/  --image-file  /an/image/file.png  --type format/ocr --box [x1,y1,x2,y2]
+```
+```Shell
+python3 GOT-OCR-2.0-master/GOT/demo/run_ocr_2.0.py  --model-name  /GOT_weights/  --image-file  /an/image/file.png  --type format/ocr --color red/green/blue
+```
+4. multi-crop OCR:
+```Shell
+python3 GOT-OCR-2.0-master/GOT/demo/run_ocr_2.0_crop.py  --model-name  /GOT_weights/ --image-file  /an/image/file.png 
+```
+5. **Note**: This feature is not batch inference!! It works on the token level.  Please read the paper and then correct use multi-page OCR (the image path contains multiple .png files):
+```Shell
+python3 GOT-OCR-2.0-master/GOT/demo/run_ocr_2.0_crop.py  --model-name  /GOT_weights/ --image-file  /images/path/  --multi-page
+```
+6. render the formatted OCR results:
+```Shell
+python3 GOT-OCR-2.0-master/GOT/demo/run_ocr_2.0.py  --model-name  /GOT_weights/  --image-file  /an/image/file.png  --type format --render
+ ```
+**Note**:
+The rendering results can be found in /results/demo.html. Please open the demo.html to see the results.
+
 ### 命令行模式
 
 在容器内使用预设的`ocr`命令别名进行OCR识别:
@@ -161,7 +199,7 @@ rm -rf /var/lib/apt/lists/*
 mkdir -p /app && cd /app
 
 # 克隆项目
-git clone https://github.com/Ucas-HaoranWei/GOT-OCR2.0.git temp
+git clone https://github.com/gulubao/GOT-OCR2.0.git temp
 mv temp/* temp/.[!.]* . 2>/dev/null || true
 rm -rf temp
 ```
@@ -178,11 +216,26 @@ pip install --no-cache-dir torch==2.0.1 torchvision torchaudio --index-url https
 # 安装其他依赖
 pip install --no-cache-dir packaging
 pip install --no-cache-dir ninja
-MAX_JOBS=2 pip install flash-attn --no-build-isolation # TODO: fail. try compile locally
+```
+
+```bash
+git clone https://github.com/Dao-AILab/flash-attention.git
+cd flash-attention
+DISABLE_NINJA=1 MAX_JOBS=1 TORCH_CUDA_ARCH_LIST="8.9" python3 setup.py install
+cd ..
+# rm -rf flash-attention
+```
+
+```bash
+# MAX_JOBS=2 pip install flash-attn --no-build-isolation # TODO: fail. try compile locally
 pip install --no-cache-dir fastapi uvicorn python-multipart
 pip install --no-cache-dir gradio>=3.50.2
 pip install --no-cache-dir huggingface_hub
 pip install --no-cache-dir Pillow numpy
+pip install transformers
+pip install opencv-python-headless
+pip install tiktoken
+pip install accelerate
 ```
 
 ### 5. 下载模型权重
@@ -199,10 +252,11 @@ python3 -c "from huggingface_hub import snapshot_download; snapshot_download('uc
 
 ```bash
 # 添加命令别名
-echo 'alias ocr="python3 /app/GOT/demo/run_ocr_2.0.py --model-name /app/GOT_weights"' >> ~/.bashrc
-echo 'alias start-api="python3 /app/api_server.py"' >> ~/.bashrc
-echo 'alias start-ui="python3 /app/gradio_app.py"' >> ~/.bashrc
-source ~/.bashrc
+bash
+echo 'alias ocr="python3 /app/GOT/demo/run_ocr_2.0.py --model-name /app/GOT_weights"' >> /root/.bashrc
+echo 'alias start-api="python3 /app/api_server.py"' >> /root/.bashrc
+echo 'alias start-ui="python3 /app/gradio_app.py"' >> /root/.bashrc
+source /root/.bashrc
 ```
 
 ### 7. 启动服务
@@ -233,6 +287,16 @@ docker run -it --gpus all \
   -v $(pwd)/data:/data \
   -v $(pwd)/GOT_weights:/app/GOT_weights \
   got-ocr:latest bash
+```
+
+```bash
+# Windows PowerShell
+docker run -it --gpus all `
+    -p 8000:8000 -p 7860:7860 `
+    -v ${PWD}/data:/data `
+    -v ${PWD}/GOT_weights:/app/GOT_weights `
+    --name got-ocr `
+    got-ocr:latest bash
 ```
 
 ### 常见问题解决

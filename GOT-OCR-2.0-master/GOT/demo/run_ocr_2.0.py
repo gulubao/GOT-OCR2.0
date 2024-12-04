@@ -2,6 +2,10 @@ import argparse
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 import os
+
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 from GOT.utils.conversation import conv_templates, SeparatorStyle
 from GOT.utils.utils import disable_torch_init
 from transformers import CLIPVisionModel, CLIPImageProcessor, StoppingCriteria
