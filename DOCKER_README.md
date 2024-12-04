@@ -274,7 +274,7 @@ python3 /app/gradio_app.py
 
 ```bash
 # 在另一个终端中执行（不要在容器内执行）
-docker commit got-ocr got-ocr:latest
+docker commit got-ocr got-ocr:v1
 ```
 
 ### 9. 后续使用
@@ -286,7 +286,7 @@ docker run -it --gpus all \
   -p 8000:8000 -p 7860:7860 \
   -v $(pwd)/data:/data \
   -v $(pwd)/GOT_weights:/app/GOT_weights \
-  got-ocr:latest bash
+  got-ocr:v1 bash
 ```
 
 ```bash
@@ -296,7 +296,7 @@ docker run -it --gpus all `
     -v ${PWD}/data:/data `
     -v ${PWD}/GOT_weights:/app/GOT_weights `
     --name got-ocr `
-    got-ocr:latest bash
+    got-ocr:v1 bash
 ```
 
 ### 常见问题解决
